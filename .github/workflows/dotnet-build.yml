@@ -1,0 +1,39 @@
+name: Build and Test Project
+
+env:
+  PROJECT_PATH: 'DemoCQRS/DemoCQRS.csproj'
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.x'
+          cache: false
+
+      - name: Restore dependencies
+        run: |
+          dotnet restore ${{ env.PROJECT_PATH }}
+
+      - name: Build the project
+        run: |
+          dotnet build ${{ env.PROJECT_PATH }} --no-restore --configuration Release
+
+      - name: Build Success
+        if: success()
+        run: echo "✅ Build completed successfully! Project is ready to merge."
+
+      - name: Build Failed
+        if: failure()
+        run: echo "❌ Build failed! Please fix the errors before merging."
